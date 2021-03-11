@@ -1,0 +1,222 @@
+service:
+  name: capstone-event-manager
+
+plugins:
+  - serverless-webpack
+  - serverless-iam-roles-per-function
+  - serverless-reqvalidator-plugin
+  - serverless-aws-documentation
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  tracing: true 
+  iamRoleStatements:
+    - Effect: "Allow" 
+      Action:
+        - "xray:PutTraceSegments"
+        - "xray:PutTelemetryRecords"
+      Resource:
+        - "*"
+
+  stage: ${opt:stage, 'dev'}
+  region: ${opt:region, 'us-west-2'}
+
+  environment:
+    PROJECT_NAME: capstone-event-manager
+    EVENTS_TABLE: capstone-event-manager-events-${self:provider.stage}
+    EVENT_TYPES_TABLE: capstone-event-manager-types-${self:provider.stage}
+    S3_BUCKET_NAME: abdul-capstone-event-manager-${self:provider.stage}
+
+custom:
+  documentation:
+    api:
+      info:
+        version: '1.0.0'
+        title: capstone-event-manager
+        description: api-documentation-for-capstone-event-manager
+    models:
+      - name: SaveEventRequest
+        contentType: "application/json"
+        schema:
+          required:
+            - title
+            - description
+            - scheduledAt
+            - eventType
+          properties:
+            title:
+              type: string
+            description:
+              type: string
+            scheduledAt:
+              type: string
+            eventType:
+              type: string
+
+functions:
+
+  Auth:
+    handler: src/lambda/auth/auth0Authorizer.handler
+
+  GetEvents:
+    handler: src/lambda/http/getEvents.handler
+    events:
+      - http:
+          method: get
+          path: events
+          cors: true
+          documentation:
+            summary: "Get all events"
+            description: "Get all events"
+    iamRoleStatementsName: ${self:provider.environment.PROJECT_NAME}-get-events-role-${self:provider.stage}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.EVENTS_TABLE}
+      - Effect: Allow
+        Action:
+          - s3:*
+        Resource: arn:aws:s3:::${self:provider.environment.S3_BUCKET_NAME}/*
+
+  GetUserEvents:
+    handler: src/lambda/http/getUserEvents.handler
+    events:
+      - http:
+          method: get
+          path: userevents
+          cors: true
+          authorizer: Auth
+          documentation:
+            summary: "Get events owned by user"
+            description: "Get events owned by user"
+    iamRoleStatementsName: ${self:provider.environment.PROJECT_NAME}-get-event-role-${self:provider.stage}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.EVENTS_TABLE}
+      - Effect: Allow
+        Action:
+          - s3:*
+        Resource: arn:aws:s3:::${self:provider.environment.S3_BUCKET_NAME}/*
+
+  CreateEvent:
+    handler: src/lambda/http/createEvent.handler
+    events:
+      - http:
+          method: post
+          path: events
+          cors: true
+          authorizer: Auth
+          documentation:
+            summary: "Create a new event item"
+            description: "Create a new event item"
+            requestModels:
+              "application/json": SaveEventRequest
+          reqValidatorName: onlyBody
+    iamRoleStatementsName: ${self:provider.environment.PROJECT_NAME}-create-event-role-${self:provider.stage}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.EVENTS_TABLE}
+
+  UpdateEvent:
+    handler: src/lambda/http/updateEvent.handler
+    events:
+      - http:
+          method: patch
+          path: events/{eventId}
+          cors: true
+          authorizer: Auth
+          documentation:
+            summary: "Update an event item"
+            description: "Update an event item"
+            requestModels:
+              "application/json": SaveEventRequest
+          reqValidatorName: onlyBody
+    iamRoleStatementsName: ${self:provider.environment.PROJECT_NAME}-update-event-role-${self:provider.stage}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.EVENTS_TABLE}
+
+  DeleteEvent:
+    handler: src/lambda/http/deleteEvent.handler
+    events:
+      - http:
+          method: delete
+          path: events/{eventId}
+          cors: true
+          authorizer: Auth
+    iamRoleStatementsName: ${self:provider.environment.PROJECT_NAME}-delete-event-role-${self:provider.stage}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:DeleteItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.EVENTS_TABLE}
+
+  GenerateUploadUrl:
+    handler: src/lambda/http/generateUploadUrl.handler
+    events:
+      - http:
+          method: post
+          path: events/{eventId}/attachment
+          cors: true
+          authorizer: Auth
+    iamRoleStatementsName: ${self:provider.environment.PROJECT_NAME}-s3-upload-role-${self:provider.stage}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - s3:*
+        Resource: arn:aws:s3:::${self:provider.environment.S3_BUCKET_NAME}/*
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.EVENTS_TABLE}
+
+resources:
+  Resources:
+    EventsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: userId
+            AttributeType: S
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: userId
+            KeyType: HASH
+          - AttributeName: id
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+        TableName: ${self:provider.environment.EVENTS_TABLE}
+    onlyBody:
+      Type: "AWS::ApiGateway::RequestValidator"
+      Properties:
+        Name: 'only-body'
+        RestApiId:
+          Ref: ApiGatewayRestApi
+        ValidateRequestBody: true
+        ValidateRequestParameters: false
+    AttachmentsBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:provider.environment.S3_BUCKET_NAME}
+        CorsConfiguration:
+          CorsRules:
+            - AllowedOrigins:
+                - '*'
+              AllowedHeaders:
+                - '*'
+              AllowedMethods:
+                - GET
+                - PUT
+                - POST
+                - DELETE
+                - HEAD
+              MaxAge: 600
