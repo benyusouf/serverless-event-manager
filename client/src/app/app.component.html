@@ -1,8 +1,13 @@
 <mat-toolbar color="primary">
   <span>EventManager</span>
   <span class="example-spacer"></span>
-  <span *ngIf="true"><a style="cursor: pointer;" (click)="login()">Login</a></span>
-  <span *ngIf="false"><a>Logout</a></span>
+  <span style="margin-right: 20px;" *ngIf="auth.user$ | async as user">Welcome {{user.name}}</span>
+  <ng-container *ngIf="auth.isAuthenticated$ | async; else loggedOut">
+    <span><a style="cursor: pointer;" (click)="logout()">Logout</a></span>
+  </ng-container>
+  <ng-template #loggedOut>
+    <span><a style="cursor: pointer;" (click)="login()">Login</a></span>
+  </ng-template>
 </mat-toolbar>
 
 <div  class="container">
@@ -29,6 +34,6 @@
           </mat-card>
         </div>
       </mat-tab>
-      <mat-tab *ngIf="false"  label="Owned Events">Content 2</mat-tab>
+      <mat-tab *ngIf="auth.isAuthenticated$"  label="Owned Events">Content 2</mat-tab>
     </mat-tab-group>
 </div>

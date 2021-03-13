@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+import { Component, Inject } from '@angular/core';
 import { AuthService } from '@auth0/auth0-angular';
 
 @Component({
@@ -11,10 +12,15 @@ export class AppComponent {
   events = [1, 2, 3, 4, 5];
 
   constructor(
-    private _auth: AuthService
+    public auth: AuthService,
+    @Inject(DOCUMENT) public document: Document
   ) {}
 
   login(){
-    this._auth.loginWithRedirect();
+    this.auth.loginWithRedirect();
+  }
+
+  logout(){
+    this.auth.logout({ returnTo: document.location.origin })
   }
 }
