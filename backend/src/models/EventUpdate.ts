@@ -4,4 +4,5 @@ export interface EventUpdate {
   scheduledAt: string;
   done: boolean;
   eventType: string;
+  venue: string;
 }

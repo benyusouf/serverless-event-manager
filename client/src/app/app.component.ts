@@ -9,7 +9,8 @@ import { AuthService } from '@auth0/auth0-angular';
 })
 export class AppComponent {
   title = 'capstone-event-manager';
-  events = [1, 2, 3, 4, 5];
+
+  year = new Date().getFullYear().toString();
 
   constructor(
     public auth: AuthService,
@@ -18,6 +19,7 @@ export class AppComponent {
 
   login(){
     this.auth.loginWithRedirect();
+    console.log(window.location)
   }
 
   logout(){

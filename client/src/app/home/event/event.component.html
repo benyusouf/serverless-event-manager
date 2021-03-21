@@ -1,0 +1,34 @@
+
+    <div class="row mt-5">
+        <div *ngFor="event of events" class="col-md-4 mb-5">
+            <mat-card class="example-card">
+                <img mat-card-image src="https://material.angular.io/assets/img/examples/shiba2.jpg" width="100%" height="250px" alt="Photo of a Shiba Inu">
+                
+                  <mat-card-title>Shiba Inu</mat-card-title>
+                <mat-card-content>
+                  <p>
+                    The Shiba Inu is the smallest of the six original and distinct spitz breeds of dog from Japan.
+                   
+                  </p>
+                </mat-card-content>
+                <mat-card-actions>
+                  <div class="row">
+                    <div class="col-5">
+                        <mat-icon tooltip="Upload Image" placement="top" class="cursor mr-2 text-primary" aria-hidden="false" aria-label="Example home icon">upload</mat-icon>
+                        <mat-icon tooltip="Edit Event" placement="bottom" class="cursor mr-2 text-success" aria-hidden="false" aria-label="Example home icon">edit</mat-icon>
+                        <mat-icon tooltip="Delete Event" placement="right" class="cursor text-danger" aria-hidden="false" aria-label="Example home icon">delete</mat-icon>
+                      </div>
+                      <div class="col-7">
+                          <div class="float-right ml-2 border border-primary px-2 rounded">
+                            <small>17/03/1994</small>
+                          </div>
+                          
+                          <div class="float-right border border-success px-2 rounded">
+                            <small>Meetup</small>
+                          </div>
+                      </div>
+                  </div>
+                </mat-card-actions>
+              </mat-card>
+        </div>
+    </div>

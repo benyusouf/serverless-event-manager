@@ -1,0 +1,12 @@
+
+ <div class="container mt-5">
+    <div class="row">
+        <mat-tab-group mat-align-tabs="start">
+            <mat-tab label="Events">
+                <app-event [events]="events"></app-event>
+            </mat-tab>
+            <mat-tab *ngIf="auth.isAuthenticated$ | async"  label="Owned Events">Content 2</mat-tab>
+          </mat-tab-group>
+    </div>
+ </div>
+  

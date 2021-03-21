@@ -6,4 +6,5 @@ export interface SaveEventRequest {
   description: string;
   eventType: string;
   scheduledAt: string;
+  venue: string;
 }

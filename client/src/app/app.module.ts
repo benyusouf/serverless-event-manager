@@ -1,16 +1,15 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import {MatToolbarModule} from '@angular/material/toolbar';
-import {MatIconModule} from '@angular/material/icon';
-import {MatTabsModule} from '@angular/material/tabs';
-import {MatCardModule} from '@angular/material/card';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { CommonModule } from '@angular/common';
-import { AuthModule } from '@auth0/auth0-angular';
+import { AuthModule, AuthHttpInterceptor } from '@auth0/auth0-angular';
 import { environment } from 'src/environments/environment';
+import { RouterModule } from '@angular/router';
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
 
 @NgModule({
   declarations: [
@@ -22,15 +21,21 @@ import { environment } from 'src/environments/environment';
     CommonModule,
     BrowserAnimationsModule,
     MatToolbarModule,
-    MatCardModule,
-    MatTabsModule,
-    MatIconModule,
+    RouterModule,
     AuthModule.forRoot({
-      domain: environment.authConfig.domain,
-      clientId: environment.authConfig.clientId
-    }),
+      ...environment.auth,
+      httpInterceptor: {
+        allowedList: environment.securedUrls
+      }
+    })
   ],
-  providers: [],
+  providers: [
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthHttpInterceptor,
+      multi: true
+    }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

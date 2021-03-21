@@ -2,6 +2,7 @@
   <span>EventManager</span>
   <span class="example-spacer"></span>
   <span style="margin-right: 20px;" *ngIf="auth.user$ | async as user">Welcome {{user.name}}</span>
+  <span style="margin-right: 20px; cursor: pointer;" *ngIf="auth.user$ | async as user" [routerLink]="['/add-event']">Add Event</span>
   <ng-container *ngIf="auth.isAuthenticated$ | async; else loggedOut">
     <span><a style="cursor: pointer;" (click)="logout()">Logout</a></span>
   </ng-container>
@@ -10,30 +11,16 @@
   </ng-template>
 </mat-toolbar>
 
-<div  class="container">
-  <mat-tab-group mat-align-tabs="start">
-      <mat-tab label="Events">
-        <div class="events-container">
-          <mat-card class="example-card" *ngFor="let event of events">
-            <mat-card-header>
-              <div mat-card-avatar class="example-header-image"></div>
-              <mat-card-title>Shiba Inu</mat-card-title>
-              <mat-card-subtitle>Dog Breed</mat-card-subtitle>
-            </mat-card-header>
-            <img mat-card-image src="https://material.angular.io/assets/img/examples/shiba2.jpg" width="100%" height="250px" alt="Photo of a Shiba Inu">
-            <mat-card-content>
-              <p>
-                The Shiba Inu is the smallest of the six original and distinct spitz breeds of dog from Japan.
-               
-              </p>
-            </mat-card-content>
-            <mat-card-actions>
-              <button mat-button>LIKE</button>
-              <button mat-button>SHARE</button>
-            </mat-card-actions>
-          </mat-card>
-        </div>
-      </mat-tab>
-      <mat-tab *ngIf="auth.isAuthenticated$"  label="Owned Events">Content 2</mat-tab>
-    </mat-tab-group>
-</div>
+<router-outlet></router-outlet>
+
+<mat-toolbar class="footer">
+  <div class="text-center w-100">
+    <p class="small text-secondary">
+      © {{ year }} EventManager by
+      <a class="brand bold" href="https://abdulify.com"
+        >Abdullahi Yusuf</a
+      >
+      All Rights Reserved.
+    </p>
+  </div>
+</mat-toolbar>

@@ -75,18 +75,20 @@ export class EventRepository {
                 'userId': userId,
                 'id': eventId
             },
-            UpdateExpression: 'set #a = :a, #b = :b, #c = :c, #d = :d',
+            UpdateExpression: 'set #a = :a, #b = :b, #c = :c, #d = :d #e = :e',
             ExpressionAttributeNames: {
                 '#a': 'title',
                 '#b': 'scheduleddAt',
                 '#c': 'done',
-                '#d': 'eventType'
+                '#d': 'eventType',
+                '#e': 'venue'
             },
             ExpressionAttributeValues: {
                 ':a': eventUpdate['title'],
                 ':b': eventUpdate['scheduleddAt'],
                 ':c': eventUpdate['done'],
-                ':d': eventUpdate['eventType']
+                ':d': eventUpdate['eventType'],
+                ':e': eventUpdate['venue']
             },
             ReturnValues: 'ALL_NEW'
         };

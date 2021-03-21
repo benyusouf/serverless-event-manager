@@ -2,14 +2,27 @@
 // `ng build --prod` replaces `environment.ts` with `environment.prod.ts`.
 // The list of file replacements can be found in `angular.json`.
 
+import { domain, clientId, audience, api } from '../auth_config.json';
+
 export const environment = {
+
   production: false,
 
-  authConfig: {
-    domain: 'benyusouf.eu.auth0.com',
-    clientId: '7zPrtzptoi2wTpRuGL91EMR7BZuOAGRH',
-    callback: 'http://localhost:4201'
-  }
+  auth: {
+    domain: domain,
+    clientId: clientId,
+    redirectUri: window.location.origin,
+    // audience: audience
+  },
+
+  api: api,
+
+  securedUrls: [
+    `${api}/events`,
+    `${api}/userEvents`,
+    `${api}/events/:eventId`,
+    `${api}/events/:eventId/attachment`
+  ]
 };
 
 /*
