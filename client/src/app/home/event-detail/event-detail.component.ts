@@ -8,6 +8,7 @@ import { EventService } from '../services/event.service';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { AuthService } from '@auth0/auth0-angular';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-event-detail',
@@ -52,16 +53,6 @@ export class EventDetailComponent implements OnInit, OnDestroy {
       this.loadEventInfo();
     });
 
-    if(!this.event.attachmentUrl){
-      this.imageUrl = 
-      'https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.angage.com%2Fen%2Fhybrid-events-what-are-they-and-what-tools-do-you-need-to-organise-one%2F&psig=AOvVaw2yNiZh5oJQbCnZ-JCU0_qq&ust=1616553553609000&source=images&cd=vfe&ved=0CAIQjRxqFwoTCIjX6sqxxe8CFQAAAAAdAAAAABAD';
-    } else{
-      this.imageUrl = this.event.attachmentUrl;
-    }
-
-    console.log(this.imageUrl)
-
-
     this.uploadImageForm = this._formBuilder.group(
       {
         image: ['', Validators.required]
@@ -102,16 +93,29 @@ export class EventDetailComponent implements OnInit, OnDestroy {
         this.isDone = true;
       }
 
+      if(!this.event.attachmentUrl){
+        this.imageUrl = environment.defaultImageUrl;
+      } else{
+        this.imageUrl = this.event.attachmentUrl;
+      }
+  
+      console.log(this.imageUrl);
+
       console.log(result);
     }, err => console.log(err)))
   }
 
   getUploadUrl(template: TemplateRef<any>){
     this.modalRef = this._modalService.show(template);
+    this._spinner.show();
     this.subscriptions.push(this._eventService.getUploadUrl(this.eventId).subscribe((result) => {
+      this._spinner.hide();
       console.log(result);
       this.uploadUrl = result.uploadUrl;
-    }))
+    }, err => {
+      this._spinner.hide();
+      this.reload();
+    }));
   }
 
   handleFileInput(files: FileList) {
@@ -174,6 +178,10 @@ export class EventDetailComponent implements OnInit, OnDestroy {
   }
 
   private redirectToHome(url) {
+    if(url.length > 2){
+      this.reload();
+      return;
+    }
     this._router.navigateByUrl(url);
   }
 
@@ -197,6 +205,10 @@ export class EventDetailComponent implements OnInit, OnDestroy {
         this.isDone = true;
       }
     }
+  }
+
+  reload(){
+    window.location.reload();
   }
 
 }

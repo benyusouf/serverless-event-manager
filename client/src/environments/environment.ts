@@ -22,7 +22,10 @@ export const environment = {
     `${api}/userEvents`,
     `${api}/events/:eventId`,
     `${api}/events/:eventId/attachment`
-  ]
+  ],
+
+  defaultImageUrl: 'https://media-exp1.licdn.com/dms/image/C4D1BAQFAC3o2eHS_vA/company-background_10000/0/1565182814457?e=2159024400&v=beta&t=zWT-JPXEhmCFr0L8eTn0LswSz82VWuuJBkRuPAvLN-Q'
+
 };
 
 /*
