@@ -25,6 +25,8 @@ export class EventDetailComponent implements OnInit, OnDestroy {
   image: File;
   imageUrl: string;
   user: any;
+  isDone = false;
+  scheduledAt = '';
 
   subscriptions: Subscription[] = []
 
@@ -90,6 +92,16 @@ export class EventDetailComponent implements OnInit, OnDestroy {
   loadEventInfo(){
     this.subscriptions.push(this._eventService.getEvent(this.eventId, this.userId).subscribe((result) => {
       this.event = result.items[0] as Event;
+
+      let dateArray = this.event.scheduledAt.split('/');
+      let newDate = `${dateArray[1]}/${dateArray[0]}/${dateArray[2]}`;
+
+      const eventDate = Date.parse(newDate);
+
+      if(new Date().getTime() > eventDate){
+        this.isDone = true;
+      }
+
       console.log(result);
     }, err => console.log(err)))
   }
@@ -114,14 +126,15 @@ export class EventDetailComponent implements OnInit, OnDestroy {
 
       this.subscriptions.push(this._eventService.uploadPhoto(this.uploadUrl, this.image).subscribe((result) => {
         console.log(result);
+        this._spinner.hide();
         this.alertConfirmation('Image has been successfully saved.', `/events/${this.eventId}/${this.userId}`);
       }, error => {
         console.log(error);
+        this._spinner.hide()
         this.alertError('Sorry image upload was not successful, please try again.');
       }
       ));
 
-      this._spinner.hide();
     }
   }
 
@@ -165,10 +178,25 @@ export class EventDetailComponent implements OnInit, OnDestroy {
   }
 
   deleteEvent(){
+    this._spinner.show();
     this.subscriptions.push(this._eventService.deleteEvent(this.eventId).subscribe((result) => {
       console.log(result);
+      this._spinner.hide();
       this.alertConfirmation('Event deleted successfully', '/');
-    }, err => this.alertError('Event deletion was not successful, please try again'))) 
+    }, err => {
+      this._spinner.hide();
+      this.alertError('Event deletion was not successful, please try again');
+    })) 
+  }
+
+  done(){
+    if(this.event){
+      const eventDate = Date.parse(this.event.scheduledAt);
+      console.log(this.event);
+      if(new Date().getMilliseconds() > eventDate){
+        this.isDone = true;
+      }
+    }
   }
 
 }

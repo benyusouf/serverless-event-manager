@@ -53,15 +53,15 @@ export class AddEventComponent implements OnInit , OnDestroy{
       this.setValues();
 
       this.addEventSubscription = this._eventService.createEvent(this.saveEvent).subscribe((result) => {
+        this._spinner.hide();
         console.log(result);
         this.alertConfirmation();
       }, error => {
         console.log(error);
+        this._spinner.hide();
         this.alertError();
       }
       );
-
-      this._spinner.hide();
 
       console.log(this.saveEvent);
     }

@@ -68,9 +68,11 @@ export class UpdateEventComponent implements OnInit {
 
       this.subscriptions.push(this._eventService.updateEvent(this.eventId, this.saveEvent).subscribe((result) => {
         console.log(result);
+        this._spinner.hide();
         this.alertConfirmation();
       }, error => {
         console.log(error);
+        this._spinner.hide();
         this.alertError();
       }
       ));
@@ -98,7 +100,7 @@ export class UpdateEventComponent implements OnInit {
   private alertConfirmation() {
     const options = {
       title: 'Thank You',
-      text: 'Your event has been created successfully.',
+      text: 'Your event has been updated successfully.',
       type: 'success',
       showCancelButton: false,
       confirmButtonColor: '#5533ff',
@@ -117,7 +119,7 @@ export class UpdateEventComponent implements OnInit {
   private alertError() {
     const options = {
       title: 'Opps!',
-      text: 'Sorry event creation was not successful, please try again.',
+      text: 'Sorry event update was not successful, please try again.',
       type: 'error',
       showCancelButton: false,
       confirmButtonColor: '#5533ff',

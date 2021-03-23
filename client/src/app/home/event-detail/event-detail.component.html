@@ -21,9 +21,10 @@
                 </div>
                 <hr>
                 
-                <a class="btn btn-success float-right px-4 py-2 mr-3" href="#" role="button">Attend</a>
+                <input type="submit" class="btn btn-success float-right px-4 py-2 mr-3" href="#" role="button" [disabled]="isDone" value="Attend">
                 <div class="float-right mr-2 border border-primary px-2 py-2 rounded">
-                  <small>{{event.scheduledAt}}</small>
+                  <small *ngIf="!isDone">{{event.scheduledAt}}</small>
+                  <small *ngIf="isDone">Done</small>
                 </div>
               </div>
         </div>
@@ -62,3 +63,6 @@
       </form>
     </div>
   </ng-template>
+
+
+  <ngx-spinner></ngx-spinner>

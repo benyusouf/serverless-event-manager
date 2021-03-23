@@ -1,10 +1,10 @@
 
     <div class="row mt-5">
-        <div *ngFor="let event of events" class="col-md-4 mb-5">
+        <div style="cursor: pointer;" *ngFor="let event of changedEvents" class="col-md-4 mb-5" [routerLink]="['/events', event.id, event.userId]">
             <mat-card class="example-card">
                 <img mat-card-image src="https://material.angular.io/assets/img/examples/shiba2.jpg" width="100%" height="250px" alt="Photo of a Shiba Inu">
                 
-                  <mat-card-title [routerLink]="['/events', event.id, event.userId]">{{event.title}}</mat-card-title>
+                  <mat-card-title>{{event.title}}</mat-card-title>
                 <mat-card-content>
                   <p>
                     {{event.description}}
@@ -14,8 +14,9 @@
                 <mat-card-actions>
                   <div class="row">
                       <div class="col">
-                          <div class="float-right ml-2 border border-primary px-2 rounded">
-                            <small>{{event.scheduledAt}}</small>
+                          <div class="float-right ml-2 border border-primary px-2 rounded" *ngIf="isChecked">
+                            <small *ngIf="!event.isDone">{{event.scheduledAt}}</small>
+                            <small *ngIf="event.isDone">Done</small>
                           </div>
                           
                           <div class="float-right border border-success px-2 rounded">
