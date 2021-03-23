@@ -7,6 +7,7 @@ import { Event } from '../models/event.model';
 import { EventService } from '../services/event.service';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { NgxSpinnerService } from 'ngx-spinner';
+import { AuthService } from '@auth0/auth0-angular';
 
 @Component({
   selector: 'app-event-detail',
@@ -23,6 +24,7 @@ export class EventDetailComponent implements OnInit, OnDestroy {
   uploadImageForm: FormGroup;
   image: File;
   imageUrl: string;
+  user: any;
 
   subscriptions: Subscription[] = []
 
@@ -32,7 +34,8 @@ export class EventDetailComponent implements OnInit, OnDestroy {
     private _eventService: EventService,
     private _modalService: BsModalService,
     private _router: Router,
-    private _spinner: NgxSpinnerService
+    private _spinner: NgxSpinnerService,
+    public auth: AuthService
   ) { }
 
   ngOnDestroy(): void {
@@ -63,6 +66,19 @@ export class EventDetailComponent implements OnInit, OnDestroy {
       }
     );
 
+    this.getUser();
+
+  }
+
+  getUser(){
+    this.subscriptions.push(this.auth.user$.subscribe((result) => {
+      this.user = result;
+      console.log(result);
+    }))
+  }
+
+  isOwner(){
+    return this.user && this.userId == this.user.sub;
   }
 
 
@@ -98,10 +114,10 @@ export class EventDetailComponent implements OnInit, OnDestroy {
 
       this.subscriptions.push(this._eventService.uploadPhoto(this.uploadUrl, this.image).subscribe((result) => {
         console.log(result);
-        this.alertConfirmation();
+        this.alertConfirmation('Image has been successfully saved.', `/events/${this.eventId}/${this.userId}`);
       }, error => {
         console.log(error);
-        this.alertError();
+        this.alertError('Sorry image upload was not successful, please try again.');
       }
       ));
 
@@ -109,10 +125,10 @@ export class EventDetailComponent implements OnInit, OnDestroy {
     }
   }
 
-  private alertConfirmation() {
+  private alertConfirmation(message: string, redirectUrl) {
     const options = {
-      title: 'Thank You',
-      text: 'Image has been successfully saved.',
+      title: 'Done',
+      text: message,
       type: 'success',
       showCancelButton: false,
       confirmButtonColor: '#5533ff',
@@ -121,17 +137,17 @@ export class EventDetailComponent implements OnInit, OnDestroy {
 
     Swal.fire(options).then(result => {
       if (result.value) {
-        this.redirectToHome();
+        this.redirectToHome(redirectUrl);
       }
     });
   }
 
 
 
-  private alertError() {
+  private alertError(message: string) {
     const options = {
       title: 'Opps!',
-      text: 'Sorry image upload was not successful, please try again.',
+      text: message,
       type: 'error',
       showCancelButton: false,
       confirmButtonColor: '#5533ff',
@@ -144,8 +160,15 @@ export class EventDetailComponent implements OnInit, OnDestroy {
     });
   }
 
-  private redirectToHome() {
-    this._router.navigateByUrl(`/events/${this.eventId}/${this.userId}`);
+  private redirectToHome(url) {
+    this._router.navigateByUrl(url);
+  }
+
+  deleteEvent(){
+    this.subscriptions.push(this._eventService.deleteEvent(this.eventId).subscribe((result) => {
+      console.log(result);
+      this.alertConfirmation('Event deleted successfully', '/');
+    }, err => this.alertError('Event deletion was not successful, please try again'))) 
   }
 
 }
