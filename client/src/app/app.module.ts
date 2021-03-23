@@ -10,6 +10,7 @@ import { AuthModule, AuthHttpInterceptor } from '@auth0/auth0-angular';
 import { environment } from 'src/environments/environment';
 import { RouterModule } from '@angular/router';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
+import { ModalModule } from 'ngx-bootstrap/modal';
 
 @NgModule({
   declarations: [
@@ -18,9 +19,11 @@ import { HTTP_INTERCEPTORS } from '@angular/common/http';
   imports: [
     BrowserModule,
     AppRoutingModule,
+    RouterModule,
     CommonModule,
     BrowserAnimationsModule,
     MatToolbarModule,
+    ModalModule.forRoot(),
     RouterModule,
     AuthModule.forRoot({
       ...environment.auth,

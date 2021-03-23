@@ -73,6 +73,38 @@ functions:
     iamRoleStatements:
       - Effect: Allow
         Action:
+          - dynamodb:Scan
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.EVENTS_TABLE}
+      - Effect: Allow
+        Action:
+          - s3:*
+        Resource: arn:aws:s3:::${self:provider.environment.S3_BUCKET_NAME}/*
+
+  GetEvent:
+    handler: src/lambda/http/getEvent.handler
+    events:
+      - http:
+          method: get
+          path: event
+          cors: true
+          request:
+            passThrough: NEVER
+            parameters:
+              querystrings:
+                userId: true
+                eventId: true
+            template:
+              application/json: '{ "userId":"$input.params(''userId'')","eventId":"$input.params(''eventId'')"}'
+          response:
+            headers:
+              Content-Type: "'application/json'"
+          documentation:
+            summary: "Get single event"
+            description: "Get single event"
+    iamRoleStatementsName: ${self:provider.environment.PROJECT_NAME}-get-even-role-${self:provider.stage}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
           - dynamodb:Query
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.EVENTS_TABLE}
       - Effect: Allow

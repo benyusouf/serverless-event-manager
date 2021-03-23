@@ -3,6 +3,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { AddEventComponent } from './add-event/add-event.component';
 import { EventDetailComponent } from './event-detail/event-detail.component';
 import { HomeComponent } from './home/home.component';
+import { UpdateEventComponent } from './update-event/update-event.component';
 
 const routes: Routes = [
   // Module is lazy loaded, see app-routing.module.ts
@@ -11,12 +12,16 @@ const routes: Routes = [
     component: HomeComponent
   },
   {
-    path: ':id/detail',
+    path: 'events/:eventId/:userId',
     component: EventDetailComponent
   },
   {
     path: 'add-event',
     component: AddEventComponent
+  },
+  {
+    path: 'update-event/:eventId/:userId',
+    component: UpdateEventComponent
   }
 ];
 

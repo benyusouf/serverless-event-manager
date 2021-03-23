@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { EventComponent } from './event/event.component';
-import { HomeRoutingModule } from './hone-routing.module';
+import { HomeRoutingModule } from './home-routing.module';
 import { HomeComponent } from './home/home.component';
 import { EventDetailComponent } from './event-detail/event-detail.component';
 import { MatCardModule } from '@angular/material/card';
@@ -18,6 +18,8 @@ import { NgxSpinnerModule } from 'ngx-spinner';
 import { HttpClientModule } from '@angular/common/http';
 import { EventService } from './services/event.service';
 import { Auth0Service } from './services/auth-service';
+import { RouterModule } from '@angular/router';
+import { UpdateEventComponent } from './update-event/update-event.component';
 
 
 
@@ -26,9 +28,11 @@ import { Auth0Service } from './services/auth-service';
     EventComponent,
     HomeComponent,
     EventDetailComponent,
-    AddEventComponent
+    AddEventComponent,
+    UpdateEventComponent
   ],
   imports: [
+    RouterModule,
     HttpClientModule,
     NgxSpinnerModule,
     CommonModule,

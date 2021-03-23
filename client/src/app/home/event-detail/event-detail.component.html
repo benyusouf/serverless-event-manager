@@ -1,1 +1,54 @@
-<p>event-detail works!</p>
+<div class="container my-5">
+    <div class="row">
+        <div class="col">
+            <div class="jumbotron-fluid">
+                <div class="row">
+                    <div class="col">
+                        <button class="cursor float-right mr-3 btn btn-danger px-4" >Delete</button>
+                        <button class="cursor float-right mr-2 btn btn-success px-4" [routerLink]="['/update-event', event.id, event.userId]" >Edit</button>
+                        <button class="cursor float-right mr-2 btn btn-secondary px-4" (click)="getUploadUrl(template)">Update Image</button>
+                    </div>
+                </div>
+                <hr class="my-4">
+                <img mat-card-image [src]="event.attachmentUrl" class="img-fluid mb-4" width="100%" style="max-height: 600px;" alt="Event Picture">
+                <h3 class="">{{event.title}}</h3>
+                <p class="lead">{{event.eventType}}</p>
+                <p>{{event.description}}</p>
+                <a class="btn btn-success float-right px-4 mr-3" href="#" role="button">Attend</a>
+              </div>
+        </div>
+    </div>
+ </div>
+
+
+ <ng-template #template>
+    <div class="modal-header">
+      <h4 class="modal-title pull-left">Upload Image</h4>
+      <button type="button" class="close pull-right" aria-label="Close" (click)="modalRef.hide()">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form [formGroup]="uploadImageForm" (submit)="submit()">
+        <div class="form-group">
+            <label for="image">Choose Photo:</label>
+            <input 
+            formControlName="image" 
+            id="imahge" 
+            type="file" 
+            class="form-control"
+            accept="image/png"
+            (change)="handleFileInput($event.target.files)"
+            required
+            >
+        </div>
+        <div class="form-group">                  
+            <input 
+            [disabled]="!uploadImageForm.valid"
+            value="Upload" 
+            class="btn btn-success form-control" 
+            type="submit">
+        </div>
+      </form>
+    </div>
+  </ng-template>

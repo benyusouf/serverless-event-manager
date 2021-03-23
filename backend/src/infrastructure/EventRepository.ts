@@ -45,6 +45,28 @@ export class EventRepository {
             TableName: this.eventTable
         };
 
+        const result = await this.docClient.scan(params).promise();
+        console.log(result);
+        const items = result.Items;
+
+        return items as EventItem[]
+    }
+
+    async getEvent(id: string, userId: string): Promise<EventItem[]> {
+        console.log('Getting single event');
+
+        const params = {
+            TableName: this.eventTable,
+            KeyConditionExpression: '#userId = :userId and id = :id',
+            ExpressionAttributeNames: {
+                '#userId': 'userId'
+            },
+            ExpressionAttributeValues: {
+                ':userId': userId,
+                ':id': id
+            }
+        };
+
         const result = await this.docClient.query(params).promise();
         console.log(result);
         const items = result.Items;
@@ -75,18 +97,18 @@ export class EventRepository {
                 'userId': userId,
                 'id': eventId
             },
-            UpdateExpression: 'set #a = :a, #b = :b, #c = :c, #d = :d #e = :e',
+            UpdateExpression: 'set #a = :a, #b = :b, #c = :c, #d = :d, #e = :e',
             ExpressionAttributeNames: {
                 '#a': 'title',
-                '#b': 'scheduleddAt',
-                '#c': 'done',
+                '#b': 'scheduledAt',
+                '#c': 'description',
                 '#d': 'eventType',
                 '#e': 'venue'
             },
             ExpressionAttributeValues: {
                 ':a': eventUpdate['title'],
-                ':b': eventUpdate['scheduleddAt'],
-                ':c': eventUpdate['done'],
+                ':b': eventUpdate['scheduledAt'],
+                ':c': eventUpdate['description'],
                 ':d': eventUpdate['eventType'],
                 ':e': eventUpdate['venue']
             },

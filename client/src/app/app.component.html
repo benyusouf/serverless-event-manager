@@ -1,8 +1,8 @@
 <mat-toolbar color="primary">
-  <span>EventManager</span>
+  <span [routerLink]="['/']">EventManager</span>
   <span class="example-spacer"></span>
   <span style="margin-right: 20px;" *ngIf="auth.user$ | async as user">Welcome {{user.name}}</span>
-  <span style="margin-right: 20px; cursor: pointer;" *ngIf="auth.user$ | async as user" [routerLink]="['/add-event']">Add Event</span>
+  <span style="margin-right: 20px; cursor: pointer;" *ngIf="auth.user$ | async as user" [routerLink]="['/add-event']">Create Event</span>
   <ng-container *ngIf="auth.isAuthenticated$ | async; else loggedOut">
     <span><a style="cursor: pointer;" (click)="logout()">Logout</a></span>
   </ng-container>

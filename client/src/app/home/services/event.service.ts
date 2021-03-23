@@ -1,4 +1,4 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
@@ -20,12 +20,18 @@ export class EventService {
     private _auth: Auth0Service
   ) { }
 
-getEvents(): Observable<Event[]> {
-  return this._http.get<Event[]>(`${this.api}/events`);
+getEvents(): Observable<any> {
+  return this._http.get<any>(`${this.api}/events`);
 }
 
-getUserEvents(): Observable<Event[]> {
-  return this._http.get<Event[]>(`${this.api}/userevents`, {headers: this.getHeaders()});
+getUserEvents(): Observable<any> {
+  return this._http.get<any>(`${this.api}/userevents`, {headers: this.getHeaders()});
+}
+
+getEvent(id: string, userId: string): Observable<any> {
+  const params = this.toHttpParams({userId: userId, eventId: id});
+  console.log(id);
+  return this._http.get<any>(`${this.api}/event`, {params : params});
 }
 
 createEvent(event: SaveEvent): Observable<Event> {
@@ -33,7 +39,7 @@ createEvent(event: SaveEvent): Observable<Event> {
 }
 
 updateEvent(eventId: string, event: SaveEvent): Observable<Event>{
-  return this._http.put<Event>(`${this.api}/events/${eventId}`, event, {headers: this.getHeaders()});
+  return this._http.patch<Event>(`${this.api}/events/${eventId}`, event, {headers: this.getHeaders()});
 }
 
 deleteEvent(eventId: string): Observable<void> {
@@ -44,11 +50,12 @@ uploadPhoto(uploadUrl: string, file: File): Observable<void>{
   return this._http.put<void>(uploadUrl, file);
 }
 
-getUploadUrl(eventId: string): Observable<string> {
-  return this._http.post<string>(`${this.api}/events/${eventId}/attachment`, '', {headers: this.getHeaders()});
+getUploadUrl(eventId: string): Observable<any> {
+  return this._http.post<any>(`${this.api}/events/${eventId}/attachment`, '', {headers: this.getHeaders()});
 }
 
 private getHeaders() {
+  this._auth.renewSession();
   const accessKey = this._auth.getIdToken();
   console.log(accessKey);
   const headers = new HttpHeaders().append(this.authHeaderKey, `Bearer ${accessKey}`);
@@ -56,5 +63,10 @@ private getHeaders() {
 
   return headers;
 }
+
+  private toHttpParams(params) {
+    return Object.getOwnPropertyNames(params)
+    .reduce((p, key) => p.set(key, params[key]), new HttpParams());
+  }
 
 }

@@ -16,6 +16,10 @@ export async function getEvents(): Promise<EventItem[]> {
     return repo.getEvents();
 }
 
+export async function getEvent(id: string, userId: string): Promise<EventItem[]> {
+    return repo.getEvent(id, userId);
+}
+
 export function createEvent(createEventRequest: SaveEventRequest, jwtToken: string): Promise<EventItem> {
     const userId = parseUserId(jwtToken);
     return repo.createEvent({

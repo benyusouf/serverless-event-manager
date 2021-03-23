@@ -1,27 +1,34 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { NgxSpinnerService } from 'ngx-spinner';
-import { SaveEvent } from '../models/saveEvent.model';
-import Swal from 'sweetalert2/dist/sweetalert2.js';
-import { Router } from '@angular/router';
-import { EventService } from '../services/event.service';
 import { Subscription } from 'rxjs';
+import { SaveEvent } from '../models/saveEvent.model';
+import { EventService } from '../services/event.service';
+
+import Swal from 'sweetalert2/dist/sweetalert2.js';
+import { Event } from '../models/event.model';
 
 @Component({
-  selector: 'app-add-event',
-  templateUrl: './add-event.component.html',
-  styleUrls: ['./add-event.component.scss']
+  selector: 'app-update-event',
+  templateUrl: './update-event.component.html',
+  styleUrls: ['./update-event.component.scss']
 })
-export class AddEventComponent implements OnInit , OnDestroy{
+export class UpdateEventComponent implements OnInit {
+
+  eventId: string;
+  userId: string;
+  event = new Event();
 
   minDate = new Date();
 
-  createEventForm: FormGroup;
+  updateEventForm: FormGroup;
   saveEvent = new SaveEvent();
 
-  addEventSubscription: Subscription;
+  subscriptions: Subscription[] = [];
 
   constructor(
+    private _route: ActivatedRoute,
     private _formBuilder: FormBuilder,
     private _spinner: NgxSpinnerService,
     private _router: Router,
@@ -30,7 +37,14 @@ export class AddEventComponent implements OnInit , OnDestroy{
 
   ngOnInit(): void {
 
-    this.createEventForm = this._formBuilder.group(
+    this._route.params.subscribe(params=> {
+      this.eventId = params.eventId;
+      this.userId = params.userId;
+      console.log(this.eventId);
+      this.loadEventInfo();
+    });
+
+    this.updateEventForm = this._formBuilder.group(
       {
         title: ['', Validators.required],
         type: ['', Validators.required],
@@ -42,24 +56,24 @@ export class AddEventComponent implements OnInit , OnDestroy{
   }
 
   get createEventFormControls() {
-    return this.createEventForm.controls;
+    return this.updateEventForm.controls;
   }
 
 
   submit() {
-    if(this.createEventForm.valid){
+    if(this.updateEventForm.valid){
 
       this._spinner.show();
       this.setValues();
 
-      this.addEventSubscription = this._eventService.createEvent(this.saveEvent).subscribe((result) => {
+      this.subscriptions.push(this._eventService.updateEvent(this.eventId, this.saveEvent).subscribe((result) => {
         console.log(result);
         this.alertConfirmation();
       }, error => {
         console.log(error);
         this.alertError();
       }
-      );
+      ));
 
       this._spinner.hide();
 
@@ -120,8 +134,15 @@ export class AddEventComponent implements OnInit , OnDestroy{
     this._router.navigateByUrl('/');
   }
 
+  loadEventInfo(){
+    this.subscriptions.push(this._eventService.getEvent(this.eventId, this.userId).subscribe((result) => {
+      this.event = result.items[0] as Event;
+      console.log(this.event);
+    }, err => console.log(err)));
+  }
+
   ngOnDestroy(){
-    this.addEventSubscription.unsubscribe();
+    this.subscriptions.forEach(x => x.unsubscribe());
   }
 
 }
