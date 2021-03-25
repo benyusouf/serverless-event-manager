@@ -8,6 +8,7 @@ import { EventService } from '../services/event.service';
 
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Event } from '../models/event.model';
+import { AuthService } from '@auth0/auth0-angular';
 
 @Component({
   selector: 'app-update-event',
@@ -27,22 +28,29 @@ export class UpdateEventComponent implements OnInit {
 
   subscriptions: Subscription[] = [];
 
+  token: string;
+
   constructor(
     private _route: ActivatedRoute,
     private _formBuilder: FormBuilder,
     private _spinner: NgxSpinnerService,
     private _router: Router,
-    private _eventService: EventService
+    private _eventService: EventService,
+    private _auth: AuthService
   ) { }
 
   ngOnInit(): void {
 
-    this._route.params.subscribe(params=> {
+    this.subscriptions.push(this._route.params.subscribe(params=> {
       this.eventId = params.eventId;
       this.userId = params.userId;
       console.log(this.eventId);
       this.loadEventInfo();
-    });
+    }));
+
+    this.subscriptions.push(this._auth.isAuthenticated$.subscribe((result) => {
+      this.getToken();
+    }));
 
     this.updateEventForm = this._formBuilder.group(
       {
@@ -53,6 +61,15 @@ export class UpdateEventComponent implements OnInit {
         venue: ['', Validators.required]
       }
     );
+  }
+
+  getToken(){
+    this.subscriptions.push(this._auth.idTokenClaims$.subscribe((result) => {
+      if(result){
+        console.log(result.__raw);
+        this.token = result.__raw;
+      }
+    }, err => console.log(err)));
   }
 
   get createEventFormControls() {
@@ -66,7 +83,7 @@ export class UpdateEventComponent implements OnInit {
       this._spinner.show();
       this.setValues();
 
-      this.subscriptions.push(this._eventService.updateEvent(this.eventId, this.saveEvent).subscribe((result) => {
+      this.subscriptions.push(this._eventService.updateEvent(this.eventId, this.saveEvent, this.token).subscribe((result) => {
         console.log(result);
         this._spinner.hide();
         this.alertConfirmation();
@@ -144,7 +161,9 @@ export class UpdateEventComponent implements OnInit {
   }
 
   ngOnDestroy(){
-    this.subscriptions.forEach(x => x.unsubscribe());
+    if(this.subscriptions.length > 0){
+      this.subscriptions.forEach(x => x.unsubscribe());
+    }
   }
 
 }

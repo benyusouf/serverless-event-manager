@@ -1,6 +1,5 @@
 {
     "domain": "benyusouf.eu.auth0.com",
     "clientId": "7zPrtzptoi2wTpRuGL91EMR7BZuOAGRH",
-    "audience": "https://r9sqhr0bma.execute-api.us-west-2.amazonaws.com",
     "api": "https://r9sqhr0bma.execute-api.us-west-2.amazonaws.com/dev"
   }

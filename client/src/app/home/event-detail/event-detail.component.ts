@@ -28,6 +28,7 @@ export class EventDetailComponent implements OnInit, OnDestroy {
   user: any;
   isDone = false;
   scheduledAt = '';
+  token: string;
 
   subscriptions: Subscription[] = []
 
@@ -42,16 +43,18 @@ export class EventDetailComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnDestroy(): void {
-    this.subscriptions.forEach(x => x.unsubscribe());
+    if(this.subscriptions.length > 0){
+      this.subscriptions.forEach(x => x.unsubscribe());
+    }
   }
 
   ngOnInit(): void {
-    this._route.params.subscribe(params=> {
+    this.subscriptions.push(this._route.params.subscribe(params=> {
       this.eventId = params.eventId;
       this.userId = params.userId;
       console.log(this.eventId);
       this.loadEventInfo();
-    });
+    }));
 
     this.uploadImageForm = this._formBuilder.group(
       {
@@ -59,8 +62,22 @@ export class EventDetailComponent implements OnInit, OnDestroy {
       }
     );
 
-    this.getUser();
+    
 
+    this.subscriptions.push(this.auth.isAuthenticated$.subscribe((result) => {
+      this.getToken();
+      this.getUser();
+    }));
+
+  }
+
+  getToken(){
+    this.subscriptions.push(this.auth.idTokenClaims$.subscribe((result) => {
+      if(result) {
+        console.log(result.__raw);
+        this.token = result.__raw;
+      }
+    }, err => console.log(err)));
   }
 
   getUser(){
@@ -84,10 +101,9 @@ export class EventDetailComponent implements OnInit, OnDestroy {
     this.subscriptions.push(this._eventService.getEvent(this.eventId, this.userId).subscribe((result) => {
       this.event = result.items[0] as Event;
 
-      let dateArray = this.event.scheduledAt.split('/');
-      let newDate = `${dateArray[1]}/${dateArray[0]}/${dateArray[2]}`;
-
-      const eventDate = Date.parse(newDate);
+      const eventDate = Date.parse(this.event.scheduledAt);
+      console.log(eventDate);
+      console.log(new Date().getTime());
 
       if(new Date().getTime() > eventDate){
         this.isDone = true;
@@ -108,7 +124,7 @@ export class EventDetailComponent implements OnInit, OnDestroy {
   getUploadUrl(template: TemplateRef<any>){
     this.modalRef = this._modalService.show(template);
     this._spinner.show();
-    this.subscriptions.push(this._eventService.getUploadUrl(this.eventId).subscribe((result) => {
+    this.subscriptions.push(this._eventService.getUploadUrl(this.eventId, this.token).subscribe((result) => {
       this._spinner.hide();
       console.log(result);
       this.uploadUrl = result.uploadUrl;
@@ -187,7 +203,7 @@ export class EventDetailComponent implements OnInit, OnDestroy {
 
   deleteEvent(){
     this._spinner.show();
-    this.subscriptions.push(this._eventService.deleteEvent(this.eventId).subscribe((result) => {
+    this.subscriptions.push(this._eventService.deleteEvent(this.eventId, this.token).subscribe((result) => {
       console.log(result);
       this._spinner.hide();
       this.alertConfirmation('Event deleted successfully', '/');
@@ -205,6 +221,10 @@ export class EventDetailComponent implements OnInit, OnDestroy {
         this.isDone = true;
       }
     }
+  }
+
+  attend(){
+    this.alertConfirmation('Your reservation has been book', '/');
   }
 
   reload(){

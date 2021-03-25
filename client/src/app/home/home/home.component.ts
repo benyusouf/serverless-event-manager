@@ -1,7 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { AuthService } from '@auth0/auth0-angular';
 import { Subscription } from 'rxjs';
-import { Auth0Service } from '../services/auth-service';
 import { EventService } from '../services/event.service';
 
 @Component({
@@ -20,33 +19,42 @@ export class HomeComponent implements OnInit , OnDestroy{
 
   constructor(
     public  auth: AuthService,
-    private _eventService: EventService,
-    private _auth0Service: Auth0Service
+    private _eventService: EventService
   ) 
-  { }
+  { 
 
-  ngOnInit(): void {
+  }
+
+  async ngOnInit(): Promise<void> {
     this.subscriptions.push(this._eventService.getEvents().subscribe((result) => {
       this.events = result.items;
       console.log(this.events)
     }, error => console.log(error)));
 
-    this.auth.user$.subscribe(
+    this.subscriptions.push(this.auth.user$.subscribe(
       (profile) => {
+        this.auth.idTokenClaims$.subscribe(result => console.log(result), err => console.log(err));
         if(profile){
-          this._auth0Service.renewSession();
-          this.getUserEvents();
+          this.auth.idTokenClaims$.subscribe((result) => {
+            console.log(result.__raw);
+            this.getUserEvents(result.__raw);
+          }, err => console.log(err));
+          
         }
       }
-    );
+    ));
+
   }
 
   ngOnDestroy(){
-    this.subscriptions.forEach(x => x.unsubscribe());
+    if(this.subscriptions.length > 0){
+      this.subscriptions.forEach(x => x.unsubscribe());
+    }
   }
 
-  getUserEvents(){
-      this.subscriptions.push(this._eventService.getUserEvents().subscribe((result) => {
+  getUserEvents(token: string){
+    console.log("A");
+      this.subscriptions.push(this._eventService.getUserEvents(token).subscribe((result) => {
         this.userEvents = result.items;
       }, error => console.log(error)));
   }

@@ -23,6 +23,6 @@ export class AppComponent {
   }
 
   logout(){
-    this.auth.logout({ returnTo: document.location.origin })
+    this.auth.logout({ returnTo: document.location.origin });
   }
 }

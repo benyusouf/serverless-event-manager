@@ -17,7 +17,7 @@ import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
 import { NgxSpinnerModule } from 'ngx-spinner';
 import { HttpClientModule } from '@angular/common/http';
 import { EventService } from './services/event.service';
-import { Auth0Service } from './services/auth-service';
+//import { Auth0Service } from './services/auth-service';
 import { RouterModule } from '@angular/router';
 import { UpdateEventComponent } from './update-event/update-event.component';
 
@@ -48,7 +48,7 @@ import { UpdateEventComponent } from './update-event/update-event.component';
     BsDatepickerModule.forRoot()
   ],
 
-  providers: [EventService, Auth0Service]
+  providers: [EventService]
 
 })
 export class HomeModule { }

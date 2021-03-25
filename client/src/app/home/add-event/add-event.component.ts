@@ -6,6 +6,7 @@ import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Router } from '@angular/router';
 import { EventService } from '../services/event.service';
 import { Subscription } from 'rxjs';
+import { AuthService } from '@auth0/auth0-angular';
 
 @Component({
   selector: 'app-add-event',
@@ -19,13 +20,15 @@ export class AddEventComponent implements OnInit , OnDestroy{
   createEventForm: FormGroup;
   saveEvent = new SaveEvent();
 
-  addEventSubscription: Subscription;
+  subscriptions: Subscription[] = [];
+  token: string;
 
   constructor(
     private _formBuilder: FormBuilder,
     private _spinner: NgxSpinnerService,
     private _router: Router,
-    private _eventService: EventService
+    private _eventService: EventService,
+    private auth: AuthService
   ) { }
 
   ngOnInit(): void {
@@ -39,6 +42,20 @@ export class AddEventComponent implements OnInit , OnDestroy{
         venue: ['', Validators.required]
       }
     );
+
+    this.subscriptions.push(this.auth.isAuthenticated$.subscribe((result) => {
+      this.getToken();
+    }));
+
+  }
+
+  getToken(){
+    this.subscriptions.push(this.auth.idTokenClaims$.subscribe((result) => {
+      if(result){
+        console.log(result.__raw);
+        this.token = result.__raw;
+      }
+    }, err => console.log(err)));
   }
 
   get createEventFormControls() {
@@ -52,7 +69,7 @@ export class AddEventComponent implements OnInit , OnDestroy{
       this._spinner.show();
       this.setValues();
 
-      this.addEventSubscription = this._eventService.createEvent(this.saveEvent).subscribe((result) => {
+      this.subscriptions.push(this._eventService.createEvent(this.saveEvent, this.token).subscribe((result) => {
         this._spinner.hide();
         console.log(result);
         this.alertConfirmation();
@@ -61,7 +78,7 @@ export class AddEventComponent implements OnInit , OnDestroy{
         this._spinner.hide();
         this.alertError();
       }
-      );
+      ));
 
       console.log(this.saveEvent);
     }
@@ -78,7 +95,7 @@ export class AddEventComponent implements OnInit , OnDestroy{
 
       let date = controls['date'].value;
 
-      this.saveEvent.scheduledAt = `${date.getDate().toString()}/0${date.getMonth().toString()}/${date.getFullYear().toString()}`;
+      this.saveEvent.scheduledAt = `0${(date.getMonth() + 1).toString()}/${date.getDate().toString()}/${date.getFullYear().toString()}`;
   }
 
   private alertConfirmation() {
@@ -121,7 +138,9 @@ export class AddEventComponent implements OnInit , OnDestroy{
   }
 
   ngOnDestroy(){
-    this.addEventSubscription.unsubscribe();
+    if(this.subscriptions.length > 0){
+      this.subscriptions.forEach(x => x.unsubscribe());
+    }
   }
 
 }

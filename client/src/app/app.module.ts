@@ -28,7 +28,7 @@ import { ModalModule } from 'ngx-bootstrap/modal';
     AuthModule.forRoot({
       ...environment.auth,
       httpInterceptor: {
-        allowedList: environment.securedUrls
+        allowedList: [environment.api + '/*']
       }
     })
   ],

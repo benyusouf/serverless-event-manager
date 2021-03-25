@@ -1,4 +1,5 @@
 import { AfterViewChecked, Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-event',
@@ -11,6 +12,7 @@ export class EventComponent implements OnInit, OnChanges {
   isDone = false;
   isChecked = false;
   changedEvents: any;
+  defaultImage = environment.defaultImageUrl;
 
   constructor() { }
 
@@ -29,10 +31,8 @@ export class EventComponent implements OnInit, OnChanges {
 }
 
   done(date: string): boolean{
-    let dateArray = date.split('/');
-      let newDate = `${dateArray[1]}/${dateArray[0]}/${dateArray[2]}`;
 
-      const eventDate = Date.parse(newDate);
+      const eventDate = Date.parse(date);
 
       return new Date().getTime() > eventDate;
   }

@@ -5,7 +5,7 @@
             <mat-tab label="Events">
                 <app-event *ngIf="events" [events]="events"></app-event>
             </mat-tab>
-            <mat-tab *ngIf="auth.isAuthenticated$ | async"  label="Owned Events">
+            <mat-tab *ngIf="auth.isAuthenticated$ | async"  label="My Events">
                 <app-event *ngIf="userEvents" [events]="userEvents"></app-event>
             </mat-tab>
           </mat-tab-group>

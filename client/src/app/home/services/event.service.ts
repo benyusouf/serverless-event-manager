@@ -3,7 +3,6 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { SaveEvent } from '../models/saveEvent.model';
-import { Auth0Service } from './auth-service';
 
 @Injectable({
   providedIn: 'root'
@@ -16,49 +15,44 @@ export class EventService {
   contentTypeHeaderValue = 'application/json';
 
   constructor(
-    private _http: HttpClient,
-    private _auth: Auth0Service
+    private _http: HttpClient
   ) { }
 
 getEvents(): Observable<any> {
   return this._http.get<any>(`${this.api}/events`);
 }
 
-getUserEvents(): Observable<any> {
-  return this._http.get<any>(`${this.api}/userevents`, {headers: this.getHeaders()});
+getUserEvents(token: string): Observable<any> {
+  return this._http.get<any>(`${this.api}/userevents`, {headers: this.getHeaders(token)});
 }
 
 getEvent(id: string, userId: string): Observable<any> {
   const params = this.toHttpParams({userId: userId, eventId: id});
-  console.log(id);
   return this._http.get<any>(`${this.api}/event`, {params : params});
 }
 
-createEvent(event: SaveEvent): Observable<Event> {
-  return this._http.post<Event>(`${this.api}/events`, event, {headers: this.getHeaders()});
+createEvent(event: SaveEvent, token: string): Observable<Event> {
+  return this._http.post<Event>(`${this.api}/events`, event, {headers: this.getHeaders(token)});
 }
 
-updateEvent(eventId: string, event: SaveEvent): Observable<Event>{
-  return this._http.patch<Event>(`${this.api}/events/${eventId}`, event, {headers: this.getHeaders()});
+updateEvent(eventId: string, event: SaveEvent, token: string): Observable<Event>{
+  return this._http.patch<Event>(`${this.api}/events/${eventId}`, event, {headers: this.getHeaders(token)});
 }
 
-deleteEvent(eventId: string): Observable<void> {
-  return this._http.delete<void>(`${this.api}/events/${eventId}`, {headers: this.getHeaders()});
+deleteEvent(eventId: string, token: string): Observable<void> {
+  return this._http.delete<void>(`${this.api}/events/${eventId}`, {headers: this.getHeaders(token)});
 }
 
 uploadPhoto(uploadUrl: string, file: File): Observable<void>{
   return this._http.put<void>(uploadUrl, file);
 }
 
-getUploadUrl(eventId: string): Observable<any> {
-  return this._http.post<any>(`${this.api}/events/${eventId}/attachment`, '', {headers: this.getHeaders()});
+getUploadUrl(eventId: string, token: string): Observable<any> {
+  return this._http.post<any>(`${this.api}/events/${eventId}/attachment`, '', {headers: this.getHeaders(token)});
 }
 
-private getHeaders() {
-  this._auth.renewSession();
-  const accessKey = this._auth.getIdToken();
-  console.log(accessKey);
-  const headers = new HttpHeaders().append(this.authHeaderKey, `Bearer ${accessKey}`);
+private getHeaders(token: string) {
+  const headers = new HttpHeaders().append(this.authHeaderKey, `Bearer ${token}`);
   headers.append(this.contentTypeHeaderKey, this.contentTypeHeaderValue);
 
   return headers;
