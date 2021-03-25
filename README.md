@@ -31,7 +31,7 @@ The `client` folder in the root directory contains a web application written usi
 
 You should make the following changes to link the client application with the API.
 
-You first need to create an application on Auth0, get your domain and clientId then input the values in `domain` and `clientId` properties of the json object respectively.
+You first need to create an application on Auth0, get your domain and clientId then open `config.json` file and input the values in `domain` and `clientId` properties of the json object respectively.
 
 You also need to get your API Gateway URL and pass it to the `api` property of the json object
 
