@@ -8,7 +8,6 @@ import { EventService } from '../services/event.service';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { AuthService } from '@auth0/auth0-angular';
-import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-event-detail',
@@ -52,7 +51,6 @@ export class EventDetailComponent implements OnInit, OnDestroy {
     this.subscriptions.push(this._route.params.subscribe(params=> {
       this.eventId = params.eventId;
       this.userId = params.userId;
-      console.log(this.eventId);
       this.loadEventInfo();
     }));
 
@@ -74,7 +72,6 @@ export class EventDetailComponent implements OnInit, OnDestroy {
   getToken(){
     this.subscriptions.push(this.auth.idTokenClaims$.subscribe((result) => {
       if(result) {
-        console.log(result.__raw);
         this.token = result.__raw;
       }
     }, err => console.log(err)));
@@ -83,12 +80,15 @@ export class EventDetailComponent implements OnInit, OnDestroy {
   getUser(){
     this.subscriptions.push(this.auth.user$.subscribe((result) => {
       this.user = result;
-      console.log(result);
     }))
   }
 
   isOwner(){
     return this.user && this.userId == this.user.sub;
+  }
+
+  private getRandomInt(max) {
+    return Math.floor(Math.random() * Math.floor(max));
   }
 
 
@@ -102,22 +102,14 @@ export class EventDetailComponent implements OnInit, OnDestroy {
       this.event = result.items[0] as Event;
 
       const eventDate = Date.parse(this.event.scheduledAt);
-      console.log(eventDate);
-      console.log(new Date().getTime());
 
       if(new Date().getTime() > eventDate){
         this.isDone = true;
       }
 
       if(!this.event.attachmentUrl){
-        this.imageUrl = environment.defaultImageUrl;
-      } else{
-        this.imageUrl = this.event.attachmentUrl;
+        this.event.attachmentUrl = `assets/images/${this.getRandomInt(5)}.png`;
       }
-  
-      console.log(this.imageUrl);
-
-      console.log(result);
     }, err => console.log(err)))
   }
 
@@ -126,7 +118,6 @@ export class EventDetailComponent implements OnInit, OnDestroy {
     this._spinner.show();
     this.subscriptions.push(this._eventService.getUploadUrl(this.eventId, this.token).subscribe((result) => {
       this._spinner.hide();
-      console.log(result);
       this.uploadUrl = result.uploadUrl;
     }, err => {
       this._spinner.hide();
@@ -145,7 +136,6 @@ export class EventDetailComponent implements OnInit, OnDestroy {
       this._spinner.show();
 
       this.subscriptions.push(this._eventService.uploadPhoto(this.uploadUrl, this.image).subscribe((result) => {
-        console.log(result);
         this._spinner.hide();
         this.alertConfirmation('Image has been successfully saved.', `/events/${this.eventId}/${this.userId}`);
       }, error => {
@@ -204,7 +194,6 @@ export class EventDetailComponent implements OnInit, OnDestroy {
   deleteEvent(){
     this._spinner.show();
     this.subscriptions.push(this._eventService.deleteEvent(this.eventId, this.token).subscribe((result) => {
-      console.log(result);
       this._spinner.hide();
       this.alertConfirmation('Event deleted successfully', '/');
     }, err => {
@@ -216,7 +205,6 @@ export class EventDetailComponent implements OnInit, OnDestroy {
   done(){
     if(this.event){
       const eventDate = Date.parse(this.event.scheduledAt);
-      console.log(this.event);
       if(new Date().getMilliseconds() > eventDate){
         this.isDone = true;
       }

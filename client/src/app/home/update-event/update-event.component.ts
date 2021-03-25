@@ -44,7 +44,6 @@ export class UpdateEventComponent implements OnInit {
     this.subscriptions.push(this._route.params.subscribe(params=> {
       this.eventId = params.eventId;
       this.userId = params.userId;
-      console.log(this.eventId);
       this.loadEventInfo();
     }));
 
@@ -66,7 +65,6 @@ export class UpdateEventComponent implements OnInit {
   getToken(){
     this.subscriptions.push(this._auth.idTokenClaims$.subscribe((result) => {
       if(result){
-        console.log(result.__raw);
         this.token = result.__raw;
       }
     }, err => console.log(err)));
@@ -84,7 +82,6 @@ export class UpdateEventComponent implements OnInit {
       this.setValues();
 
       this.subscriptions.push(this._eventService.updateEvent(this.eventId, this.saveEvent, this.token).subscribe((result) => {
-        console.log(result);
         this._spinner.hide();
         this.alertConfirmation();
       }, error => {
@@ -95,8 +92,6 @@ export class UpdateEventComponent implements OnInit {
       ));
 
       this._spinner.hide();
-
-      console.log(this.saveEvent);
     }
   }
 
@@ -156,7 +151,6 @@ export class UpdateEventComponent implements OnInit {
   loadEventInfo(){
     this.subscriptions.push(this._eventService.getEvent(this.eventId, this.userId).subscribe((result) => {
       this.event = result.items[0] as Event;
-      console.log(this.event);
     }, err => console.log(err)));
   }
 

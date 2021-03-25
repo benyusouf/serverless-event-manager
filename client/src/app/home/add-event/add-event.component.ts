@@ -52,7 +52,6 @@ export class AddEventComponent implements OnInit , OnDestroy{
   getToken(){
     this.subscriptions.push(this.auth.idTokenClaims$.subscribe((result) => {
       if(result){
-        console.log(result.__raw);
         this.token = result.__raw;
       }
     }, err => console.log(err)));
@@ -71,16 +70,12 @@ export class AddEventComponent implements OnInit , OnDestroy{
 
       this.subscriptions.push(this._eventService.createEvent(this.saveEvent, this.token).subscribe((result) => {
         this._spinner.hide();
-        console.log(result);
         this.alertConfirmation();
       }, error => {
-        console.log(error);
         this._spinner.hide();
         this.alertError();
       }
       ));
-
-      console.log(this.saveEvent);
     }
   }
 

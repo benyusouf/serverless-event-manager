@@ -28,17 +28,14 @@ export class HomeComponent implements OnInit , OnDestroy{
   async ngOnInit(): Promise<void> {
     this.subscriptions.push(this._eventService.getEvents().subscribe((result) => {
       this.events = result.items;
-      console.log(this.events)
     }, error => console.log(error)));
 
     this.subscriptions.push(this.auth.user$.subscribe(
       (profile) => {
-        this.auth.idTokenClaims$.subscribe(result => console.log(result), err => console.log(err));
         if(profile){
-          this.auth.idTokenClaims$.subscribe((result) => {
-            console.log(result.__raw);
+          this.subscriptions.push(this.auth.idTokenClaims$.subscribe((result) => {
             this.getUserEvents(result.__raw);
-          }, err => console.log(err));
+          }, err => console.log(err)));
           
         }
       }
@@ -53,7 +50,6 @@ export class HomeComponent implements OnInit , OnDestroy{
   }
 
   getUserEvents(token: string){
-    console.log("A");
       this.subscriptions.push(this._eventService.getUserEvents(token).subscribe((result) => {
         this.userEvents = result.items;
       }, error => console.log(error)));

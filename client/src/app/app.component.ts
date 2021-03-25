@@ -19,7 +19,6 @@ export class AppComponent {
 
   login(){
     this.auth.loginWithRedirect();
-    console.log(window.location)
   }
 
   logout(){

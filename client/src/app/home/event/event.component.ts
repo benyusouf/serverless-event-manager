@@ -1,5 +1,4 @@
-import { AfterViewChecked, Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
-import { environment } from 'src/environments/environment';
+import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 
 @Component({
   selector: 'app-event',
@@ -12,7 +11,6 @@ export class EventComponent implements OnInit, OnChanges {
   isDone = false;
   isChecked = false;
   changedEvents: any;
-  defaultImage = environment.defaultImageUrl;
 
   constructor() { }
 
@@ -25,6 +23,9 @@ export class EventComponent implements OnInit, OnChanges {
         this.changedEvents = changes['events'].currentValue;
         this.changedEvents.forEach(element => {
           element.isDone = this.done(element.scheduledAt);
+          if(!element.attachmentUrl){
+            element.attachmentUrl = `assets/images/${this.getRandomInt(5)}.png`;
+          }
         });
         this.isChecked = true;
     }
@@ -35,6 +36,10 @@ export class EventComponent implements OnInit, OnChanges {
       const eventDate = Date.parse(date);
 
       return new Date().getTime() > eventDate;
+  }
+  
+  private getRandomInt(max) {
+    return Math.floor(Math.random() * Math.floor(max));
   }
 
 }
