@@ -1,5 +1,5 @@
 <mat-toolbar color="primary">
-  <span [routerLink]="['/']">EventManager</span>
+  <span [routerLink]="['/']" style="cursor: pointer;">EventManager</span>
   <span class="example-spacer"></span>
   <span style="margin-right: 20px;" *ngIf="auth.user$ | async as user">Welcome {{user.name}}</span>
   <span style="margin-right: 20px; cursor: pointer;" *ngIf="auth.user$ | async as user" [routerLink]="['/add-event']">Create Event</span>
