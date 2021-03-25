@@ -60,6 +60,7 @@ export class UpdateEventComponent implements OnInit {
         venue: ['', Validators.required]
       }
     );
+
   }
 
   getToken(){
@@ -76,7 +77,6 @@ export class UpdateEventComponent implements OnInit {
 
 
   submit() {
-    if(this.updateEventForm.valid){
 
       this._spinner.show();
       this.setValues();
@@ -92,7 +92,6 @@ export class UpdateEventComponent implements OnInit {
       ));
 
       this._spinner.hide();
-    }
   }
 
   private setValues(){
