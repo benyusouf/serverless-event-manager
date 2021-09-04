@@ -1,6 +1,6 @@
 # Serverless EVENT MANAGER
 
-This project is implemented using AWS Lambda, Serverless Framwork for NodeJs and Angular
+This project is implemented using AWS Lambda, Serverless Framework for NodeJs and Angular
 
 ## Functionality of the application
 
